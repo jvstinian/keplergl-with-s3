@@ -26,12 +26,19 @@ build:
 
 # TODO: Add pytest
 unit:
+	@pipenv run pytest -s .
 	
 # TODO: Add linting
-lint: clean # lints all files
+lint: # lints all files
+	echo "Running 'python linter'"
+	@pipenv run flake8 --max-line-length=140
+	@pipenv run autopep8 -d -a -r --max-line-length 140 --exit-code .
+	@pipenv run black -l 140 --check .
 	
 # TODO: Add fix
 fix:
+	@pipenv run autopep8 -i -a -r --max-line-length 140 .
+	@pipenv run black -l 140 .
 	
 test: build clean lint unit # runs all tests
 
