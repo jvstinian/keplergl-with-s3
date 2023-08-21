@@ -1,0 +1,23 @@
+# Mac
+**/.DS_Store
+
+# VS Code
+**/.vscode
+
+# Python
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.tox
+**/.eggs
+**/.pytest_cache
+
+# Nodejs
+**/node_modules
+**/dist
+**/yarn-error.log
+
+# Secrets
+.env
+
