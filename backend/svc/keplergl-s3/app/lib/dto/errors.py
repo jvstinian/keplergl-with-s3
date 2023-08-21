@@ -45,4 +45,3 @@ class ApiError(BaseModel):  # pydantic cannot flatten inherited models
     @classmethod
     def create_cloud_resource_error(cls, exc, detail=None):
         return ApiError.create_error(exc, api_error_type=ApiErrorTypes.CLOUD_RESOURCE_ERROR, detail=detail)
-

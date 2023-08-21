@@ -1,7 +1,6 @@
 # app/lib/server/middleware/store.py
 import logging
-from typing import Callable, List, Tuple
-
+from typing import List, Tuple
 from fastapi import FastAPI
 from starlette.requests import Request
 from starlette.responses import Response
@@ -14,10 +13,8 @@ def debug_log_state(request: Request, fieldname: str) -> None:
         logging.debug(f"Fieldname: {fieldname} missing from state")
 
 
-def add_session_middleware(
-    app: FastAPI, additional_state: List[Tuple] = None
-) -> FastAPI:
-    """Middleware that adds certain important objects to request.state. 
+def add_session_middleware(app: FastAPI, additional_state: List[Tuple] = None) -> FastAPI:
+    """Middleware that adds certain important objects to request.state.
        Objects can be passed as a list of tuples.
     :param app:
     :param additional_state:

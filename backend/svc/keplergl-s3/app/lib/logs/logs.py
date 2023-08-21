@@ -78,7 +78,7 @@ def setup_logging(level: Optional[int] = logging.INFO, stream: Optional[Any] = N
     root_logger.setLevel(level)
     root_logger.handlers = []
     root_logger.addHandler(handler)
-    
+
     # We use a slightly different approach here as we handle uvicorn.acccess logs
     uvicorn_logger = logging.getLogger("uvicorn.access")
     uvicorn_logger.handlers = []
@@ -94,4 +94,3 @@ def get_logger(name: str) -> logging.Logger:
     import logging
 
     return logging.getLogger(name)
-

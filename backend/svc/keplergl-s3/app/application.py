@@ -1,5 +1,4 @@
 # app/application.py
-import logging
 from fastapi import FastAPI
 from .config import ENVIRONMENT
 from .controllers import keplergl_s3_controller
@@ -18,11 +17,7 @@ def create_app(title: str, environment=None, **kwargs) -> FastAPI:
     if not environment:
         environment = ENVIRONMENT
 
-    try:
-        setup_logging(get_level_from_environment(environment), json_formatting=environment != "testing")
-    except OperationalError as err:
-        logging.error(f"Error with logging setup: {err}", exc_info=True)
-        raise err
+    setup_logging(get_level_from_environment(environment), json_formatting=environment != "testing")
 
     if ENVIRONMENT == "development":
         kwargs["openapi_url"] = "/_openapi.json"
@@ -43,4 +38,3 @@ def create_app(title: str, environment=None, **kwargs) -> FastAPI:
     add_session_middleware(app)
 
     return app
-

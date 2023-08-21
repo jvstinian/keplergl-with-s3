@@ -83,4 +83,3 @@ def add_error_handling(app: FastAPI):
     @app.exception_handler(CloudResourceError)
     async def cloud_resource_error_handler(_request: Request, exc: CloudResourceError) -> JSONResponse:
         return await handle_cloud_resource_error(exc)
-

@@ -8,12 +8,7 @@ from fastapi.responses import StreamingResponse
 
 from app.config import ENVIRONMENT
 from app.lib.logs import get_level_from_environment, setup_logging
-from app.dto.UploadMap import (
-    MapDetailRequest,
-    DatasetDetailList,
-    MapDetailResponse,
-    UploadMapResponse
-)
+from app.dto.UploadMap import MapDetailRequest, DatasetDetailList, MapDetailResponse, UploadMapResponse
 from app.dto.ListMaps import ListMapsResponse
 from app.dto.DownloadMap import DownloadMapDetailResponse
 from app.dto.DeleteMap import DeleteMapResponse
@@ -32,17 +27,13 @@ from app.stores.keplergl_s3 import (
 
 setup_logging(get_level_from_environment(ENVIRONMENT), json_formatting=ENVIRONMENT != "testing")
 
+
 class UploadMapProcessor:
     def __init__(self):
         pass
-        
+
     def upload_maps(
-        self, 
-        s3client,
-        mapDetail: str,
-        datasetDetails: str,
-        datasets: List[UploadFile],
-        datasetsColumns: List[UploadFile]
+        self, s3client, mapDetail: str, datasetDetails: str, datasets: List[UploadFile], datasetsColumns: List[UploadFile]
     ) -> UploadMapResponse:
         mapDetailReq = MapDetailRequest.parse_raw(mapDetail)
         req_id = mapDetailReq.id
@@ -53,7 +44,7 @@ class UploadMapProcessor:
         if req_id is None:
             id = str(uuid4())
         else:
-            # The following can raise a ValueError, which 
+            # The following can raise a ValueError, which
             # is treated as a validation error
             id = str(UUID(req_id, version=4))
             overwrite = True
@@ -68,7 +59,7 @@ class UploadMapProcessor:
 
         if overwrite:
             moveCurrentMapToArchive(s3client, id)
-        
+
         for datasetDetail, dataset, columns in zip(parsedDatasetDetails, datasets, datasetsColumns):
             datasetId = datasetDetail.id
             uploadDatasetToS3(s3client, id, datasetId, dataset)
@@ -83,42 +74,39 @@ class UploadMapProcessor:
             privateMap=mapDetailReq.privateMap,
             datasetDetails=parsedDatasetDetails,
             lastModification=datetime.datetime.now().isoformat(timespec="seconds"),
-            active=True
+            active=True,
         )
         uploadMapDetailToS3(s3client, id, mapDetail)
 
         msg = f"Received {len(datasets)} datasets"
         return UploadMapResponse(success=True, message=msg, mapDetail=mapDetail)
 
+
 def get_upload_map_processor() -> UploadMapProcessor:
     logging.debug("In get_upload_map_processor, returning new instance of UploadMapProcessor")
-    return UploadMapProcessor() 
+    return UploadMapProcessor()
+
 
 class ListMapsProcessor:
     def __init__(self):
         pass
-        
-    def list_maps(
-        self, 
-        s3client
-    ) -> ListMapsResponse:
+
+    def list_maps(self, s3client) -> ListMapsResponse:
         mapDetails = getMapDetailsListFromS3(s3client)
         activeMapDetails = list(filter(lambda mapDetail: (mapDetail.active is None) or mapDetail.active, mapDetails))
         return ListMapsResponse(success=True, message=None, mapDetails=activeMapDetails)
+
 
 def get_list_maps_processor() -> ListMapsProcessor:
     logging.debug("In get_list_maps_processor, returning new instance of ListMapsProcessor")
     return ListMapsProcessor()
 
+
 class DownloadMapProcessor:
     def __init__(self):
         pass
-        
-    def download_map_detail(
-        self, 
-        s3client,
-        map_id: str
-    ) -> DownloadMapDetailResponse:
+
+    def download_map_detail(self, s3client, map_id: str) -> DownloadMapDetailResponse:
         mapDetail = getMapDetailFromS3(s3client, map_id)
         logging.info(f"Got map detail for {mapDetail.id}")
         return DownloadMapDetailResponse(success=True, message=None, mapDetail=mapDetail)
@@ -126,37 +114,31 @@ class DownloadMapProcessor:
     def download_map_dataset(self, s3client, map_id: str, dataset_id: str) -> StreamingResponse:
         body = getDatasetFromS3(s3client, map_id, dataset_id)
         return StreamingResponse(
-            content=body.iter_chunks(), 
-            media_type="text/csv",
-            headers={'Content-Disposition': 'inline; filename="data.csv"'}
+            content=body.iter_chunks(), media_type="text/csv", headers={"Content-Disposition": 'inline; filename="data.csv"'}
         )
 
     def download_map_columns(self, s3client, map_id: str, dataset_id: str) -> StreamingResponse:
         body = getColumnsFromS3(s3client, map_id, dataset_id)
         return StreamingResponse(
-            content=body.iter_chunks(), 
-            media_type="application/json",
-            headers={'Content-Disposition': 'inline; filename="columns.json"'}
+            content=body.iter_chunks(), media_type="application/json", headers={"Content-Disposition": 'inline; filename="columns.json"'}
         )
+
 
 def get_download_map_processor() -> DownloadMapProcessor:
     logging.debug("In get_download_map_processor, returning new instance of DownloadMapProcessor")
     return DownloadMapProcessor()
 
+
 class SoftDeleteMapProcessor:
     def __init__(self):
         pass
-        
-    def soft_delete(
-        self, 
-        s3client,
-        map_id: str
-    ) -> DeleteMapResponse:
+
+    def soft_delete(self, s3client, map_id: str) -> DeleteMapResponse:
         mapDetail = softDeleteMapFromS3(s3client, map_id)
         logging.info(f"Got map detail for {mapDetail.id}")
         return DeleteMapResponse(success=True, message=None, mapId=mapDetail.id)
 
+
 def get_soft_delete_map_processor() -> SoftDeleteMapProcessor:
     logging.debug("In get_soft_delete_map_processor, returning new instance of DeleteMapProcessor")
     return SoftDeleteMapProcessor()
-

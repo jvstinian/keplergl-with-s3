@@ -1,5 +1,4 @@
 # app/config.py
-import os
 from starlette.config import Config as StarletteConfig, environ
 
 get_config: StarletteConfig = StarletteConfig()
