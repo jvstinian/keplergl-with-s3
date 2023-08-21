@@ -64,7 +64,7 @@ class UploadMapProcessor:
             raise ValueError("The number of datasets does not match the number of ids")
 
         if len(parsedDatasetDetails) != len(datasetsColumns):
-            raise ValueError("The number of datasets does not match the number of ids")
+            raise ValueError("The number of dataset schemas does not match the number of ids")
 
         if overwrite:
             moveCurrentMapToArchive(s3client, id)

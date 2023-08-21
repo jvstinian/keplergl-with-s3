@@ -2,13 +2,12 @@
 SHELL := /bin/bash
 DIR := $(PWD)
 
-# TODO: Check the following
-# DOCKER := $(shell test -e /proc/self/cgroup && grep -o -E '/docker/.+' < /proc/self/cgroup >/dev/null 2>&1; echo $$?)
-# ifeq ($(DOCKER), 0)
-# 	export S3_ENDPOINT_URL = http://localstack:4572
-# else
-# 	export S3_ENDPOINT_URL = http://localhost:4572
-# endif
+DOCKER := $(shell ((test -e /proc/self/cgroup && grep -o -E '/docker/.+' < /proc/self/cgroup >/dev/null 2>&1) || (test -e /.dockerenv)); echo $$?)
+ifeq ($(DOCKER), 0)
+	export S3_ENDPOINT_URL = http://localstack:4566
+else
+	export S3_ENDPOINT_URL = http://localhost:4572
+endif
 
 export AWS_ACCESS_KEY_ID = makefile
 export AWS_SECRET_ACCESS_KEY = localstack
@@ -20,22 +19,19 @@ help:   # prints all make targets
 	@cat Makefile | grep '^[^ ]*:' | grep -v '.PHONY' | grep -v help | sed 's/:.*#/#/' | column -s "#" -t
 
 start: clean # runs the API
-	ENVIRONMENT=development pipenv run uvicorn app.main:app -- port 8000 --reload 
+	ENVIRONMENT=development pipenv run uvicorn app.main:app --port 8000 --reload 
 
 build:
 
-# TODO: Add pytest
 unit:
 	@pipenv run pytest -s .
 	
-# TODO: Add linting
 lint: # lints all files
 	echo "Running 'python linter'"
 	@pipenv run flake8 --max-line-length=140
 	@pipenv run autopep8 -d -a -r --max-line-length 140 --exit-code .
 	@pipenv run black -l 140 --check .
 	
-# TODO: Add fix
 fix:
 	@pipenv run autopep8 -i -a -r --max-line-length 140 .
 	@pipenv run black -l 140 .
@@ -51,10 +47,6 @@ clean:
 	@rm -rf dist/
 	@rm -rf .eggs/
 	@find . -name '.pytest_cache' -type d -exec rm -rf {} +
-
-# TODO: Will this be needed?
-# localstack: # bring up localstack
-# 	@../../../scripts/setup-test-localstack.sh
 
 docker-build:
 	docker build -t ghcr.io/jvstinian/keplergl-s3/keplergl-s3-base:latest -f base.Dockerfile .

@@ -13,12 +13,6 @@
 **/.eggs
 **/.pytest_cache
 
-# python build artifacts
-# Docker-compose persisted volumes
-docker-cache
-db-data
-redis-data
-
 # Nodejs
 **/node_modules
 **/dist

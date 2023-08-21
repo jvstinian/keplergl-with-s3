@@ -10,30 +10,9 @@ class ServerError(BaseServerException):
     pass
 
 
-class DatabaseError(ServerError):
-    pass
-
-
-class TooManyMatchingRecords(DatabaseError):
-    pass
-
-
-class NoMatchingRecordFound(DatabaseError):
-    pass
-
-
-class NoResultSetProducedByQuery(DatabaseError):
-    pass
-
-
-class DataLookupError(DatabaseError):
-    pass
-
-
 class NotFoundError(BaseServerException):
     pass
 
 
 class CloudResourceError(BaseServerException):
     pass
-

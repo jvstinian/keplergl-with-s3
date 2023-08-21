@@ -7,7 +7,6 @@ from botocore.response import StreamingBody
 from botocore.exceptions import ClientError
 from io import BytesIO
 from fastapi import UploadFile
-
 from app.config import ENVIRONMENT, KEPLERGL_S3_BUCKET, KEPLERGL_S3_USER
 from app.lib.logs import get_level_from_environment, setup_logging
 from app.lib.utils.s3helpers import getKeysStartingWithPrefixToNextDelimiter
@@ -16,9 +15,6 @@ from app.dto.UploadMap import MapDetailResponse
 
 
 setup_logging(get_level_from_environment(ENVIRONMENT), json_formatting=ENVIRONMENT != "testing")
-
-logging.debug(f"KEPLERGL_S3_BUCKET: {KEPLERGL_S3_BUCKET}") # TODO
-logging.debug(f"KEPLERGL_S3_USER: {KEPLERGL_S3_USER}")
 
 def getPreviousMapVersions(s3client, mapId: str) -> List[int]:
     keyPrefix = f"userzone/{KEPLERGL_S3_USER}/{mapId}/archive/"

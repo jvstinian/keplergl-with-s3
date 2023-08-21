@@ -1,4 +1,3 @@
-# TODO: Is this relevant?
 from io import StringIO
 import json
 import logging
