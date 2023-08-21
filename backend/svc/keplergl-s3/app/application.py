@@ -20,9 +20,9 @@ def create_app(title: str, environment=None, **kwargs) -> FastAPI:
 
     try:
         setup_logging(get_level_from_environment(environment), json_formatting=environment != "testing")
-    except OperationalError as dberr:
-        logging.error(f"Error with database connection: {dberr}", exc_info=True)
-        raise dberr
+    except OperationalError as err:
+        logging.error(f"Error with logging setup: {err}", exc_info=True)
+        raise err
 
     if ENVIRONMENT == "development":
         kwargs["openapi_url"] = "/_openapi.json"

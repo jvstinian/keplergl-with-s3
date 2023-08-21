@@ -9,9 +9,5 @@ ENVIRONMENT = environ.get("ENVIRONMENT", "development")
 
 S3_ENDPOINT_URL = get_config("S3_ENDPOINT_URL", cast=str, default=None)
 
-def set_environment(env: str):
-    environ["ENVIRONMENT"] = env
-
 KEPLERGL_S3_BUCKET = environ.get("KEPLERGL_S3_BUCKET", None)
 KEPLERGL_S3_USER = "keplergl-s3-user"
-
