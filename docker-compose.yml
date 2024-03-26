@@ -1,0 +1,60 @@
+version: "3"
+
+# This is the docker-compose base configuration
+# All our services should be defined here WITHOUT specifying their Dockerfile build path
+
+services:
+  ingress:
+    image: traefik:v2.0
+    hostname: ingress
+    restart: unless-stopped
+    command:
+      - "--log.level=INFO"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--api.dashboard=false"
+      - "--accesslog=true"
+    ports:
+      - "591:80"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  keplergl-s3-svc:
+    hostname: keplergl-s3 
+    restart: unless-stopped
+    ports:
+      - "8012:8000"
+    environment:
+      ENVIRONMENT: "${ENVIRONMENT:-development}"
+      KEPLERGL_S3_BUCKET: "keplergl-map-data"
+      STATIC_FILES_PATH: /opt/keplergl-s3-svc/local_static
+      ALLOWED_ORIGINS: "http://localhost:591"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.keplergl-s3-web.rule=Host(`${HOSTNAME:-localhost}`)&&PathPrefix(`/keplergl-s3/`)"
+      - "traefik.http.routers.keplergl-s3-web.entrypoints=web"
+      - "traefik.http.services.keplergl-s3-web.loadbalancer.server.port=8000"
+    depends_on:
+      - ingress
+
+  keplergl-web:
+    hostname: keplergl-web
+    restart: unless-stopped
+    ports:
+      - "8010:8000"
+    environment:
+      HOST: "0.0.0.0"
+      PUBLIC: "${HOSTNAME:-localhost}"
+      # HOST: keplergl-web # TODO: Probably remove HOST as it's set in the dockerfile
+      MapboxAccessToken: "${MapboxAccessToken:-YOUR_MAPBOX_TOKEN_HERE}"
+    depends_on:
+      - ingress
+      - keplergl-s3-svc
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.keplergl-web.rule=Host(`${HOSTNAME:-localhost}`)"
+      - "traefik.http.routers.keplergl-web.entrypoints=web"
+      - "traefik.http.services.keplergl-web.loadbalancer.server.port=8000"
+
