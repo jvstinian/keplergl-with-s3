@@ -9,8 +9,6 @@ Name:
   keplergl-with-s3 - CLI tool for this project
 
 Commands:
-  shell                    - brings up an interactive bash shell on the docker CI image
-  build BASE_IMAGE         - builds a base image locally
   initialize               - installs yarn packages for web servers and builds base images
 EOF
 }

@@ -1,2 +1,1 @@
-docker/ci Dockerfile ".*"
 backend/svc/keplergl-s3 base.Dockerfile "Pipfile.*"

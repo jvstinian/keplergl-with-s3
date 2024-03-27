@@ -17,7 +17,7 @@ services:
       - "--api.dashboard=false"
       - "--accesslog=true"
     ports:
-      - "591:80"
+      - "80:80"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
@@ -30,7 +30,7 @@ services:
       ENVIRONMENT: "${ENVIRONMENT:-development}"
       KEPLERGL_S3_BUCKET: "keplergl-map-data"
       STATIC_FILES_PATH: /opt/keplergl-s3-svc/local_static
-      ALLOWED_ORIGINS: "http://localhost:591"
+      ALLOWED_ORIGINS: "http://${HOSTNAME:-localhost}"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.keplergl-s3-web.rule=Host(`${HOSTNAME:-localhost}`)&&PathPrefix(`/keplergl-s3/`)"
@@ -47,7 +47,6 @@ services:
     environment:
       HOST: "0.0.0.0"
       PUBLIC: "${HOSTNAME:-localhost}"
-      # HOST: keplergl-web # TODO: Probably remove HOST as it's set in the dockerfile
       MapboxAccessToken: "${MapboxAccessToken:-YOUR_MAPBOX_TOKEN_HERE}"
     depends_on:
       - ingress
