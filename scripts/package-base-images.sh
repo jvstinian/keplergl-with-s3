@@ -11,7 +11,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 get_image_name() {
   local context="$1"
   local dockerfile="${2:-Dockerfile}"
-  local trigger="^$context/$dockerfile${3:+|^$context/$3}"
   local name="${context##*/}"
   local modifier
   modifier="$(echo "$dockerfile" | cut -d "." -f1)"
@@ -36,7 +35,7 @@ build_image() {
   local trigger="^$context/$dockerfile${3:+|^$context/$3}"
 
   local image
-  image=$(get_image_tag "$@")
+  image=$(get_image_tag "$1" "$2")
   
   echo "Building $image with regex trigger '$trigger'"
   pushd "$DIR/../$context" > /dev/null
@@ -50,4 +49,3 @@ build_all_base_images() {
     build_image $line
   done < "$DIR/docker-image-specs.txt"
 }
-
