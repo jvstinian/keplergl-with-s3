@@ -1,0 +1,42 @@
+version: "3"
+
+# This is the dev docker image configuration
+# allowing us to bring up development docker images (hot reloading)
+
+services:
+  localstack:
+    container_name: localstack
+    hostname: localstack
+    restart: unless-stopped
+    ports:
+      - "4566:4566"
+    build:
+      context: ./docker/localstack
+      dockerfile: Dockerfile
+
+  keplergl-s3-svc:
+    privileged: true
+    build:
+      context: ./backend/svc/keplergl-s3
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ./backend/svc/keplergl-s3:/opt/keplergl-s3-svc
+    environment:
+      S3_ENDPOINT_URL: http://localstack:4566
+      AWS_ACCESS_KEY_ID: docker-compose.yml
+      AWS_SECRET_ACCESS_KEY: localstack
+    depends_on:
+      - ingress
+      - localstack
+
+  keplergl-web:
+    build:
+      context: ./frontend/keplergl
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ./frontend/keplergl:/opt/keplergl-web
+    depends_on:
+      - ingress
+      - localstack
+      - keplergl-s3-svc
+ 
